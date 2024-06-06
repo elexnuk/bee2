@@ -77,6 +77,14 @@ fs.createReadStream(path.resolve(__dirname, "data/parl19const.csv"))
         console.log(`Constituency Summaries: Parsed ${rowCount} rows.`);
     });
 
+export function getConstituencyCount() {
+    return Object.keys(constituencies).length;
+}
+
+export function getResultCount() {
+    return Object.values(constituencies).reduce((acc, c) => acc + c.notional_results.length, 0);
+}
+
 // Fetch data
 export async function getConstituencyData() {
     return constituencies;

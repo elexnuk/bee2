@@ -1,5 +1,13 @@
 import { SlashCommandBuilder } from "discord.js";
 
+function formatNumber(number) {
+    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+function formatPercentage(top, bottom) {
+    return `${((top / bottom) * 100).toFixed(2)}%`;
+}
+
 export const data = new SlashCommandBuilder()
     .setName("constituency")
     .setDescription("Replies with constituency information requested.")
@@ -32,5 +40,20 @@ export async function execute(interaction) {
         return;
     }
 
-    await interaction.reply(`Constituency information for ${interaction.options.getString("name")} is as follows: \`\`\`${JSON.stringify(constituency, null, 2)}\`\`\``);
+    let output = `**${constituency.name}** is a ${constituency.type} Constituency in`;
+    if (constituency.region.name) {
+        output += ` ${constituency.country.name} (${constituency.region.name}). `;
+    } else {
+        output += ` ${constituency.country.name}. `;
+    }
+    output += `The turnout was ${formatNumber(constituency.valid_vote_count)} (${formatPercentage(constituency.valid_vote_count, constituency.population_count)}) from a population of ${formatNumber(constituency.population_count)}. The majority was ${formatNumber(constituency.majority)} (${formatPercentage(constituency.majority, constituency.valid_vote_count)}).`;
+
+    if (constituency.notional_results.length > 0) {
+        output += "\n### Party Results (2019 Notionals)";
+        for (const result of constituency.notional_results) {
+            output += `\n${result.result_position}. ${result.party_abbreviation} - ${formatNumber(result.vote_count)} (${(100 * result.vote_share).toFixed(2)}%)`;
+        }
+    }
+
+    await interaction.reply(output);
 }
