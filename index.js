@@ -1,12 +1,14 @@
 import fs from "fs";
 import path from "path";
 import { Client, Collection, Events, GatewayIntentBits } from "discord.js";
+import * as data from "./data.js";
 import "dotenv/config";
 
 const __dirname = import.meta.dirname;
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 client.commands = new Collection();
+client.data = data;
 
 const foldersPath = path.join(__dirname, "commands");
 const folders = fs.readdirSync(foldersPath);
