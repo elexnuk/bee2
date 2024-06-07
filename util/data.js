@@ -4,7 +4,7 @@
  * to query DemocracyClub API for candidates & results + BBC data for anything else
  */
 
-import data from "./data/parl19names.json" with { type: "json" };
+import data from "../data/parl19names.json" with { type: "json" };
 import * as fs from "fs";
 import * as path from "path";
 import * as csv from "fast-csv";
@@ -20,7 +20,7 @@ for (const [ballot, name] of Object.entries(data)) {
 }
 
 // Loads results from the file
-fs.createReadStream(path.resolve(__dirname, "data/parl19notional.csv"))
+fs.createReadStream(path.resolve(__dirname, "../data/parl19notional.csv"))
     .pipe(csv.parse({ headers: true }))
     .on("error", error => console.error(error))
     .on("data", async row => {
@@ -51,7 +51,7 @@ fs.createReadStream(path.resolve(__dirname, "data/parl19notional.csv"))
         console.log(`Constituncy Notional Results: Parsed ${rowCount} rows.`);
     });
 
-fs.createReadStream(path.resolve(__dirname, "data/parl19const.csv"))
+fs.createReadStream(path.resolve(__dirname, "../data/parl19const.csv"))
     .pipe(csv.parse({ headers: true }))
     .on("error", error => console.error(error))
     .on("data", async row => {

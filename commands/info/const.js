@@ -8,6 +8,17 @@ function formatPercentage(top, bottom) {
     return `${((top / bottom) * 100).toFixed(2)}%`;
 }
 
+const party_emoji = {
+    "Con": "<:Party_Conservative:859875049829695498>", // Con
+    "Lab": "<:Party_Labour:859875849590145025>", // Lab
+    "LD": "<:Party_LibDem:859874457338118144>", // LD
+    "Green": "<:Party_Green:859878487896227861>", // Grn
+    "BRX": "<:Party_REFUK:869881524152061993> ", // RefUK
+    "SNP": "<:Party_SNP:869879723948388362>", // SNP
+    "PC": "<:Party_PlaidCymru:869878398820962385>", // PC
+    "Ind": "⚪" // Other/Inds
+}
+
 export const data = new SlashCommandBuilder()
     .setName("constituency")
     .setDescription("Replies with constituency information requested.")
@@ -51,9 +62,16 @@ export async function execute(interaction) {
     if (constituency.notional_results.length > 0) {
         output += "\n### Party Results (2019 Notionals)";
         for (const result of constituency.notional_results) {
-            output += `\n${result.result_position}. ${result.party_abbreviation} - ${formatNumber(result.vote_count)} (${(100 * result.vote_share).toFixed(2)}%)`;
+            let emoji = party_emoji[result.party_abbreviation] || party_emoji["Ind"];
+            output += `\n${result.result_position}. ${emoji} ${result.party_abbreviation} - ${formatNumber(result.vote_count)} (${(100 * result.vote_share).toFixed(2)}%)`;
         }
     }
 
     await interaction.reply(output);
 }
+
+// TODO:
+// - Fuzzy Search
+// - Nominations update feed
+// - Live feed election results channel
+// - Support council by-elections/other elections in commands

@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { Client, Collection, Events, GatewayIntentBits } from "discord.js";
-import * as data from "./data.js";
+import * as data from "./util/data.js";
 import "dotenv/config";
 
 const __dirname = import.meta.dirname;
