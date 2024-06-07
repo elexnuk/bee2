@@ -87,11 +87,11 @@ export async function execute(interaction) {
         output += `There are ${info.candidacies.length} candidates standing for election, `;
         output += `[Source](<https://whocanivotefor.co.uk/elections/${ballot}>).`;
 
-        if (info.locked) {
+        if (info.candidates_locked) {
             output += " Candidate Information is locked and confirmed by the [SOPN](<" + info.sopn.source_url + ">).";
-        } else if (!info.locked && info.sopn) {
+        } else if (!info.candidates_locked && info.sopn) {
             output += " Candidate Information is not yet confirmed but the [SOPN](<" + info.sopn.source_url + ">) exists.";
-        } else if (!info.locked && !info.sopn) {
+        } else if (!info.candidates_locked && !info.sopn) {
             output += " Candidate Information is not yet confirmed.";
         }
 
