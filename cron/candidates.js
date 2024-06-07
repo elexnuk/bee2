@@ -2,7 +2,7 @@ import { getBallotsDelta } from "../util/democlub.js";
 import { state } from "../util/state.js";
 
 export const name = "candidates";
-export const schedule = "*/2 * * * *"; // every 2 minutes
+export const schedule = "*/5 * * * *"; // every 2 minutes
 
 function splitTextIntoChunks(text) {
     const chunks = [];
@@ -41,14 +41,14 @@ export async function task(sendToNotificationChannels) {
     await state.set("candidates_last_updated", (new Date()).toISOString());
 
     console.log(delta);
-
     const changes = [];
 
     for (let ballot of delta) {
+        console.log("Checking ballot", ballot.ballot_paper_id, ballot);
         // Check against state
-        const prev_ballot_data = ballot_data[ballot.id];
+        const prev_ballot_data = ballot_data[ballot.ballot_paper_id];
         let ballot_change = { 
-            id: ballot.id, 
+            id: ballot.ballot_paper_id, 
             name: ballot.post.label, 
             sopn_changed: false, 
             candidates_locked_changed: false, 
@@ -91,16 +91,24 @@ export async function task(sendToNotificationChannels) {
                     ballot_change.candidacies_added.push(candidacy);
                 }
             }
+
+            ballot_change.candidacies_changed = true;
         }
 
         // Also check for any deselections by finding a candidacy which is the same but with a different deselection status
         for (let candidacy of ballot.candidacies) {
             if (prev_ballot_data.candidacies.find(c => c.party.ec_id === candidacy.party.ec_id && c.person.id === candidacy.person.id && c.deselected === false && candidacy.deselected === true)) {
                 ballot_change.deselections.push(candidacy);
+                ballot_change.candidacies_changed = true;
             }
         }
 
-        ballot_data[ballot.id] = ballot;
+        console.log(ballot);
+        console.log(prev_ballot_data);
+        console.log(ballot_change);
+        console.log("----\n\n");
+
+        ballot_data[ballot.ballot_paper_id] = ballot;
         changes.push(ballot_change);
     }
 
@@ -108,10 +116,18 @@ export async function task(sendToNotificationChannels) {
     console.log(`Found ${changes.length} changes`);
 
     let output = `## Candidates Updates ${(new Date()).toLocaleTimeString()}`;
+    let const_change_count = 0;
     for (let change of changes) {
-        output += `\n### ${ballot_data[change.id].post.label} - ${ballot_data[change.id].election.name}`;
+        // if no change don't output this
+        if (!change.sopn_changed && !change.candidates_locked_changed && !change.cancelled_changed && !change.candidacies_changed) {
+            continue;
+        }
+
+        const_change_count++;
+
+        output += `\n### [${ballot_data[change.id].post.label}](<https://whocanivotefor.co.uk/elections/${change.id}>) - ${ballot_data[change.id].election.name}`;
         if (change.sopn_changed) {
-            output += "\n- SOPN updated to <" + ballot_data[change.id].sopn + ">";
+            output += "\n- SOPN updated to <" + ballot_data[change.id].sopn.source_url + ">";
         }
         if (change.candidates_locked_changed) {
             output += "\n- Candidate list is now " + (ballot_data[change.id].candidates_locked ? "locked" : "not locked");
@@ -131,22 +147,26 @@ export async function task(sendToNotificationChannels) {
                     output += `\n  - Removed: [${candidacy.person.name}](<https://whocanivotefor.co.uk/person/${candidacy.person.id}>) (${candidacy.party.name})`;
                 }
             }
-        }
-        if (change.deselections.length > 0) {
-            for (let candidacy of change.deselections) {
-                output += `\n  - Deselected: [${candidacy.person.name}](<https://whocanivotefor.co.uk/person/${candidacy.person.id}>) (${candidacy.party.name})`;
+            if (change.deselections.length > 0) {
+                for (let candidacy of change.deselections) {
+                    output += `\n  - Deselected: [${candidacy.person.name}](<https://whocanivotefor.co.uk/person/${candidacy.person.id}>) (${candidacy.party.name})`;
+                }
             }
         }
+        
     }
 
-    const chunks = splitTextIntoChunks(output);
-    for (const chunk of chunks) {
-        try {
-            await sendToNotificationChannels({ content: chunk });
-        } catch (e) {
-            console.error(e);
-            break;
-        }
+    // If there are changes, send them to the notification channels
+    if (const_change_count > 0) {
+        const chunks = splitTextIntoChunks(output);
+        for (const chunk of chunks) {
+            try {
+                await sendToNotificationChannels({ content: chunk });
+            } catch (e) {
+                console.error(e);
+                break;
+            }
+        }    
     }
     console.log("Finished candidates cron");
 }

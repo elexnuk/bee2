@@ -15,16 +15,18 @@ const HEADERS = {
 // }
 
 export async function getCurrentElectionBallots() {
-    const url = DEMOCLUB_API + "ballots/?current=true&page_size=200&has_results=true";
+    const url = DEMOCLUB_API + "ballots/?current=true&page_size=200";
     
     let data = await fetchJson(url, "GET", null, HEADERS);
     if (!data || !data.results) return [];
     console.log(`Loading ${data.count} ballots...`);
 
     while (data.next) {
+        console.log("requesting next page", data.next);
         let next = await fetchJson(data.next, "GET", null, HEADERS);
         if (!next || !next.results) break;
         data.results.push(...next.results); 
+        data.next = next.next;
     }
 
     if (data.results.length !==  data.count) {
@@ -72,9 +74,11 @@ export async function getBallotsDelta(last_updated, page_size=200) {
         console.log(`Loading ${data.count} updated ballots...`);
     
         while (data.next) {
+            console.log("requesting next page", data.next);
             let next = await fetchJson(data.next, "GET", null, HEADERS);
             if (!next || !next.results) break;
             data.results.push(...next.results); 
+            data.next = next.next;
         }
 
         if (data.results.length !==  data.count) { 

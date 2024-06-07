@@ -5,7 +5,7 @@ export const state = new Keyv("sqlite://data/db.sqlite");
 
 state.on("error", err => console.error("Keyv connection error:", err));
 
-const contains_ge_ballot_data = await state.has("contains_ge_ballot_data");
+const contains_ge_ballot_data = await state.get("contains_ge_ballot_data");
 if (!contains_ge_ballot_data) {
     console.log("No Ballot Data in State, Fetching...");
     await state.set("contains_ge_ballot_data", false);

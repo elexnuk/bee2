@@ -6,7 +6,7 @@
   "main": "index.js",
   "scripts": {
     "test": "node index.js",
-    "start": "node index.js",
+    "start": "node deploy.js && node index.js",
     "deploy": "node deploy.js"
   },
   "author": "james",
