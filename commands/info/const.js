@@ -71,7 +71,6 @@ export async function execute(interaction) {
 }
 
 // TODO:
-// - Fuzzy Search
-// - Nominations update feed
+// - Nominations update feed - DEBUGGING - NEED TO ENSURE THAT THE STATE DATA IS UPDATED CORRECTLY!
 // - Live feed election results channel
 // - Support council by-elections/other elections in commands

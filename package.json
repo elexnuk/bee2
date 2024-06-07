@@ -12,10 +12,13 @@
   "author": "james",
   "license": "MIT",
   "dependencies": {
+    "@keyv/sqlite": "^3.6.7",
     "discord.js": "^14.15.3",
     "dotenv": "^16.4.5",
     "fast-csv": "^5.0.1",
-    "fuse.js": "^7.0.0"
+    "fuse.js": "^7.0.0",
+    "keyv": "^4.5.4",
+    "node-cron": "^3.0.3"
   },
   "devDependencies": {
     "eslint": "^9.4.0"

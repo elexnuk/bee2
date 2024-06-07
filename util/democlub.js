@@ -19,12 +19,16 @@ export async function getCurrentElectionBallots() {
     
     let data = await fetchJson(url, "GET", null, HEADERS);
     if (!data || !data.results) return [];
-    console.log(`Loaded ${data.count}`)
+    console.log(`Loading ${data.count} ballots...`);
 
     while (data.next) {
         let next = await fetchJson(data.next, "GET", null, HEADERS);
         if (!next || !next.results) break;
         data.results.push(...next.results); 
+    }
+
+    if (data.results.length !==  data.count) {
+        console.log(`Loaded ${data.results.length} ballots out of ${data.count}`);
     }
 
     return data.results;
@@ -64,16 +68,20 @@ export async function getBallotsDelta(last_updated, page_size=200) {
     const url = DEMOCLUB_API + `ballots/?page_size=${page_size}&last_updated=${last_updated}&election_id=parl.2024-07-04`;
     try {
         let data = await fetchJson(url, "GET", null, HEADERS);
-
         if (!data || !data.results) return [];
+        console.log(`Loading ${data.count} updated ballots...`);
     
         while (data.next) {
             let next = await fetchJson(data.next, "GET", null, HEADERS);
             if (!next || !next.results) break;
             data.results.push(...next.results); 
         }
+
+        if (data.results.length !==  data.count) { 
+            console.log(`Ballot Delta: Loaded ${data.results.length} ballots out of ${data.count}`);
+        }
     
-        return data;
+        return data.results;
     } catch (err) {
         console.error(`[ERROR] Fetch ${url} failed: ${err.message}`);
         return [];
