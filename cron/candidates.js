@@ -40,11 +40,11 @@ export async function task(sendToNotificationChannels) {
     console.log(`Found ${delta.length} updated ballots. Setting last_updated to ${(new Date()).toISOString()}`);
     await state.set("candidates_last_updated", (new Date()).toISOString());
 
-    console.log(delta);
+    // console.log(delta);
     const changes = [];
 
     for (let ballot of delta) {
-        console.log("Checking ballot", ballot.ballot_paper_id, ballot);
+        // console.log("Checking ballot", ballot.ballot_paper_id, ballot);
         // Check against state
         const prev_ballot_data = ballot_data[ballot.ballot_paper_id];
         let ballot_change = { 
@@ -103,10 +103,10 @@ export async function task(sendToNotificationChannels) {
             }
         }
 
-        console.log(ballot);
-        console.log(prev_ballot_data);
-        console.log(ballot_change);
-        console.log("----\n\n");
+        // console.log(ballot);
+        // console.log(prev_ballot_data);
+        // console.log(ballot_change);
+        // console.log("----\n\n");
 
         ballot_data[ballot.ballot_paper_id] = ballot;
         changes.push(ballot_change);

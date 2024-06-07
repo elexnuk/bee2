@@ -88,9 +88,9 @@ export async function execute(interaction) {
         output += `[Source](<https://whocanivotefor.co.uk/elections/${ballot}>).`;
 
         if (info.locked) {
-            output += " Candidate Information is locked and confirmed by [SOPN](<" + info.sopn + ">).";
+            output += " Candidate Information is locked and confirmed by the [SOPN](<" + info.sopn.source_url + ">).";
         } else if (!info.locked && info.sopn) {
-            output += " Candidate Information is not yet confirmed by [SOPN](<" + info.sopn + ">).";
+            output += " Candidate Information is not yet confirmed but the [SOPN](<" + info.sopn.source_url + ">) exists.";
         } else if (!info.locked && !info.sopn) {
             output += " Candidate Information is not yet confirmed.";
         }
