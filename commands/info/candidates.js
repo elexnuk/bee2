@@ -1,5 +1,6 @@
 import { SlashCommandBuilder } from "discord.js";
 import { getBallotInformation } from "../../util/democlub.js";
+import { findConstituencyNames } from "../../util/fuzzy.js";
 
 const party_emoji = {
     "PP52": "<:Party_Conservative:859875049829695498>", // Con
@@ -25,18 +26,17 @@ export const data = new SlashCommandBuilder()
 
 export async function autocomplete(interaction) {
     const focusedValue = interaction.options.getFocused();
-    const choices = await interaction.client.data.getConstituencyNames(); // TODO: Load in constituncey names & aliases
-    
-    if (!choices) {
-        await interaction.respond([{name: "No constituencies found.", value: "error"}]);
-        return;
-    }
+    const names = await interaction.client.data.getConstituencyNames();
 
-    // TODO: RegEx or fuzzy matching
-    const filteredChoices = choices.filter(choice => choice.toLowerCase().includes(focusedValue.toLowerCase()));
-    await interaction.respond(
-        filteredChoices.map(choice => ({ name: choice, value: choice })).slice(0, 25)
-    );
+    // const filteredChoices = choices.filter(choice => choice.toLowerCase().includes(focusedValue.toLowerCase()));
+    const filteredChoices = await findConstituencyNames(focusedValue);
+    if (focusedValue === "") {
+        await interaction.respond(names.map(name => ({ name, value: name })).slice(0, 25));
+    } else {
+        await interaction.respond(
+            filteredChoices.map(choice => ({ name: choice.item, value: choice.item })).slice(0, 25)
+        );
+    }
 }
 
 function splitTextIntoChunks(text) {

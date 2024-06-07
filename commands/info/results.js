@@ -1,5 +1,6 @@
 import { SlashCommandBuilder } from "discord.js";
 import { getBallotResults, getBallotInformation } from "../../util/democlub.js";
+import { findConstituencyNames } from "../../util/fuzzy.js";
 
 function formatNumber(number) {
     return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -61,18 +62,17 @@ export const data = new SlashCommandBuilder()
 
 export async function autocomplete(interaction) {
     const focusedValue = interaction.options.getFocused();
-    const choices = await interaction.client.data.getConstituencyNames(); // TODO: Load in constituncey names & aliases
-    
-    if (!choices) {
-        await interaction.respond([{name: "No constituencies found.", value: "error"}]);
-        return;
-    }
+    const names = await interaction.client.data.getConstituencyNames();
 
-    // TODO: RegEx or fuzzy matching
-    const filteredChoices = choices.filter(choice => choice.toLowerCase().includes(focusedValue.toLowerCase()));
-    await interaction.respond(
-        filteredChoices.map(choice => ({ name: choice, value: choice })).slice(0, 25)
-    );
+    // const filteredChoices = choices.filter(choice => choice.toLowerCase().includes(focusedValue.toLowerCase()));
+    const filteredChoices = await findConstituencyNames(focusedValue);
+    if (focusedValue === "") {
+        await interaction.respond(names.map(name => ({ name, value: name })).slice(0, 25));
+    } else {
+        await interaction.respond(
+            filteredChoices.map(choice => ({ name: choice.item, value: choice.item })).slice(0, 25)
+        );
+    }
 }
 
 export async function execute(interaction) {
@@ -92,7 +92,7 @@ export async function execute(interaction) {
         const ballot_info = await getBallotInformation(ballot);
         const info = await getBallotResults(ballot);
         if (!info) {
-            await interaction.reply(`Results information for ${name ? name : ballot} is not currently available.`);
+            await interaction.reply(`Results information for ${name ? name : ballot} is not available yet.`);
             return;
         }
 
@@ -146,6 +146,6 @@ export async function execute(interaction) {
         await interaction.reply(output);
     } catch (error) {
         console.error(error);
-        await interaction.reply(`Results information for ${name ? name : ballot} is not available.`);
+        await interaction.reply(`Results information for ${name ? name : ballot} is not available yet.`);
     }
 }
