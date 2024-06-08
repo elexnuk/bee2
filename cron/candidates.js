@@ -2,7 +2,7 @@ import { getBallotsDelta } from "../util/democlub.js";
 import { state } from "../util/state.js";
 
 export const name = "candidates";
-export const schedule = "*/5 * * * *"; // every 2 minutes
+export const schedule = "*/30 * * * *"; // every 2 minutes
 
 function splitTextIntoChunks(text) {
     const chunks = [];
@@ -26,7 +26,8 @@ function splitTextIntoChunks(text) {
 }
 
 export async function task(sendToNotificationChannels) {
-    console.log((new Date()).toLocaleTimeString() + " Running cron job: candidates");
+    let update_date = new Date();
+    console.log(update_date.toLocaleTimeString() + " Running cron job: candidates");
 
     const last_updated = await state.get("candidates_last_updated");
     const delta = await getBallotsDelta(last_updated, 200);
@@ -37,8 +38,8 @@ export async function task(sendToNotificationChannels) {
         return;
     }
 
-    console.log(`Found ${delta.length} updated ballots. Setting last_updated to ${(new Date()).toISOString()}`);
-    await state.set("candidates_last_updated", (new Date()).toISOString());
+    console.log(`Found ${delta.length} updated ballots. Setting last_updated to ${update_date.toISOString()}`);
+    await state.set("candidates_last_updated", update_date.toISOString());
 
     // console.log(delta);
     const changes = [];
@@ -113,9 +114,9 @@ export async function task(sendToNotificationChannels) {
     }
 
     await state.set("ballot_data", ballot_data);
-    console.log(`Found ${changes.length} changes`);
+    // console.log(`Found ${changes.length} changes`);
 
-    let output = `## Candidates Updates ${(new Date()).toLocaleTimeString()}`;
+    let output = `## Candidates Updates ${update_date.toLocaleTimeString("en-GB", { timeZone: "Europe/London" })}`;
     let const_change_count = 0;
     for (let change of changes) {
         // if no change don't output this
