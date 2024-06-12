@@ -74,8 +74,16 @@ export async function showModal(interaction) {
 
 // respond to the modal submit
 export async function handleModalResponse(interaction) {
-    const username = interaction.fields.getTextInputValue("sandra_username");
+    let username = interaction.fields.getTextInputValue("sandra_username");
+    if (username == "") {
+        username = "[Anonymous BEcord User]";
+    }
+
     const message = interaction.fields.getTextInputValue("sandra_message");
+    if (message == "") {
+        await interaction.reply({ content: "Sandra message not submitted. Reason: You must enter a message.", ephemeral: true });
+        return;
+    }
 
     const channel = await interaction.client.channels.fetch(channelID);
 
@@ -83,6 +91,7 @@ export async function handleModalResponse(interaction) {
     let chunks = splitTextIntoChunks(content);
 
     for (let chunk of chunks) {
+        if (chunk == "") continue; 
         await channel.send({ content: chunk });
     }
     await interaction.reply({ content: "Your message has been sent to Sandra.", ephemeral: true });
