@@ -4,6 +4,7 @@
 import fs from "fs";
 import path from "path";
 import { REST, Routes } from "discord.js";
+import { slashCommand, messageCommand, userCommand } from "./sandra/sandra.js";
 import "dotenv/config";
 
 const __dirname = import.meta.dirname;
@@ -31,9 +32,22 @@ const rest = new REST().setToken(process.env.DISCORD_TOKEN);
 try {
     console.log("Started refreshing application (/) commands.");
 
+    for (let command of commands) {
+        if (command.name === "candidates" || command.name === "constituency" || command.name === "results") {
+            command.integration_types = [0, 1];
+        }
+    }
+
     await rest.put(
         Routes.applicationCommands(process.env.DISCORD_CLIENT_ID),
         { body: commands },
+    );
+
+    console.log("Started refreshing application guild (/guild) commands.");
+
+    await rest.put(
+        Routes.applicationGuildCommands(process.env.DISCORD_CLIENT_ID, process.env.DISCORD_GUILD_ID),
+        { body: [slashCommand.toJSON(), messageCommand.toJSON(), userCommand.toJSON()] },
     );
 
     console.log("Successfully reloaded application (/) commands.");
