@@ -5,6 +5,7 @@ import { Client, Collection, Events, GatewayIntentBits } from "discord.js";
 import * as data from "./util/data.js";
 import { state } from "./util/state.js";
 import "dotenv/config";
+import { handleVoted, votedCommand } from "./server/voted.js";
 
 const __dirname = import.meta.dirname;
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
@@ -46,6 +47,8 @@ for (const folder of folders) {
 		}
 	}
 }
+
+client.commands.set("voted", { execute: handleVoted, autocomplete: () => {}, data: votedCommand });
 
 const eventsPath = path.join(__dirname, "events");
 const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith(".js"));

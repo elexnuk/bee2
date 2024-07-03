@@ -24,7 +24,21 @@ if (!contains_ge_ballot_data) {
 
 const updated = await state.has("candidates_last_updated");
 if (!updated) {
-    console.log("No last_updated in State, Setting to Now...");
-    await state.set("candidates_last_updated", (new Date()).toISOString());
-    console.log("last_updated Set to Now.");
+    console.log("No last_updated in State, Setting to Backfill datetime...");
+    await state.set("candidates_last_updated", process.env.LAST_UPDATED_BACKFILL);
+    console.log("last_updated Set to Backfill datetime " + process.env.LAST_UPDATED_BACKFILL);
+}
+
+const candidates_elected_updated = await state.has("candidates_elected_last_updated");
+if (!candidates_elected_updated) {
+    console.log("No candidates_elected_last_updated in State, Setting to Backfill datetime...");
+    await state.set("candidates_elected_last_updated", process.env.LAST_UPDATED_BACKFILL);
+    console.log("candidates_elected_last_updated Set to Backfill datetime " + process.env.LAST_UPDATED_BACKFILL);
+}
+
+const results_updated = await state.has("results_last_updated");
+if (!results_updated) {
+    console.log("No results_last_updated in State, Setting to Backfill datetime...");
+    await state.set("results_last_updated", process.env.LAST_UPDATED_BACKFILL);
+    console.log("results_last_updated Set to Backfill datetime " + process.env.LAST_UPDATED_BACKFILL);
 }

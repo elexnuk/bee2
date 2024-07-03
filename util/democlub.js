@@ -51,19 +51,45 @@ export async function getBallotResults(ballot) {
     return await fetchJson(url, "GET", null, HEADERS);
 }
 
-export async function getResultsDelta(last_updated, election_date=null, election_id=null, page_size=200) {
-    let url = DEMOCLUB_API + "results/";
-    if (election_date && !election_id) {
-        url += `?election_date=${election_date}&page_size=${page_size}&last_updated=${last_updated}`;
-    } else if (election_id && !election_date) {
-        url += `?election_id=${election_id}&page_size=${page_size}&last_updated=${last_updated}`;
-    } else if (!election_id && !election_date) {
-        url += `?page_size=${page_size}&last_updated=${last_updated}`;
-    } else {
-        url += `?election_id=${election_id}&election_date=${election_date}&page_size=${page_size}&last_updated=${last_updated}`;
-    }
+// export async function getResultsDelta(last_updated, election_date=null, election_id=null, page_size=200) {
+//     let url = DEMOCLUB_API + "results/";
+//     if (election_date && !election_id) {
+//         url += `?election_date=${election_date}&page_size=${page_size}&last_updated=${last_updated}`;
+//     } else if (election_id && !election_date) {
+//         url += `?election_id=${election_id}&page_size=${page_size}&last_updated=${last_updated}`;
+//     } else if (!election_id && !election_date) {
+//         url += `?page_size=${page_size}&last_updated=${last_updated}`;
+//     } else {
+//         url += `?election_id=${election_id}&election_date=${election_date}&page_size=${page_size}&last_updated=${last_updated}`;
+//     }
 
-    return await fetchJson(url, "GET", null, HEADERS);
+//     return await fetchJson(url, "GET", null, HEADERS);
+// }
+
+export async function getResultsDelta(last_updated, page_size=200) {
+    const url = DEMOCLUB_API + `results/?page_size=${page_size}&last_updated=${last_updated}`;
+    try {
+        let data = await fetchJson(url, "GET", null, HEADERS);
+        if (!data || !data.results) return [];
+        console.log(`Loading ${data.count} updated results...`);
+
+        while (data.next) {
+            console.log("requesting next page", data.next);
+            let next = await fetchJson(data.next, "GET", null, HEADERS);
+            if (!next || !next.results) break;
+            data.results.push(...next.results); 
+            data.next = next.next;
+        }
+
+        if (data.results.length !==  data.count) {
+            console.log(`Results Delta: Loaded ${data.results.length} results out of ${data.count}`);
+        }
+
+        return data.results;
+    } catch (err) {
+        console.error(`[ERROR] Fetch ${url} failed: ${err.message}`);
+        return [];
+    }
 }
 
 export async function getBallotsDelta(last_updated, page_size=200) {
@@ -92,3 +118,29 @@ export async function getBallotsDelta(last_updated, page_size=200) {
     }
 }
 
+export async function getCandidatesElectedDelta(last_updated, page_size=200) {
+    const url = DEMOCLUB_API + `candidates_elected/?page_size=${page_size}&last_updated=${last_updated}`;
+    try {
+        let data = await fetchJson(url, "GET", null, HEADERS);
+        if (!data || !data.results) return [];
+
+        console.log(`Loading ${data.count} newly elected candidates...`);
+
+        while(data.next) {
+            console.log("requesting next page", data.next);
+            let next = await fetchJson(data.next, "GET", null, HEADERS);
+            if (!next || !next.results) break;
+            data.results.push(...next.results);
+            data.next = next.next;
+        }
+
+        if (data.results.length !==  data.count) {
+            console.log(`Elected Delta: Loaded ${data.results.length} candidates out of ${data.count}`);
+        }
+
+        return data.results;
+    } catch (err) {
+        console.error(`[ERROR] Fetch ${url} failed: ${err.message}`);
+        return [];
+    }
+}

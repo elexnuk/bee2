@@ -1,5 +1,6 @@
 import { Events } from "discord.js";
-import { showModal, handleModalResponse } from "../sandra/sandra.js";
+import { showModal, handleModalResponse } from "../server/sandra.js";
+import { handleVoted } from "../server/voted.js";
 
 export const name = Events.InteractionCreate;
 
