@@ -128,6 +128,11 @@ export async function task(sendToNotificationChannels) {
         }
     }
 
+    if (output == "") {
+        console.log("No new candidates elected to publish");
+        return;
+    }
+
     const chunks = splitTextIntoChunks(output);
     for (const chunk of chunks) {
         try {
