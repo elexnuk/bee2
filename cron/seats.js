@@ -32,7 +32,7 @@ export async function task(sendToNotificationChannels) {
             // winnerFlash has changed into new data containing winner
             if (winnerFlash !== null && previousWinnerFlash === null) {
                 console.log(`New winner found in ${card.title}`);
-                sendToNotificationChannels(`# [${card.id}](https://www.bbc.co.uk/${card.href}): ${winnerFlash.flash}, BBC Data`);
+                sendToNotificationChannels(`# [${card.title}](https://www.bbc.co.uk/${card.href}): ${winnerFlash.flash}, BBC Data`);
             }
         }
     }
