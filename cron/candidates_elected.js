@@ -2,7 +2,7 @@ import { getBallotInformation, getCandidatesElectedDelta } from "../util/democlu
 import { state } from "../util/state.js";
 
 export const name = "candidates_elected";
-export const schedule = "*/5 * * * *"; // every 5 minutes
+export const schedule = "*/2 * * * *"; // every 5 minutes
 
 const party_emoji = {
     "PP52": "<:Party_Conservative:859875049829695498>", // Con
@@ -54,6 +54,7 @@ export async function task(sendToNotificationChannels) {
     await state.set("candidates_elected_last_updated", update_date.toISOString());
 
     let elected_candidates = [];
+    let published_results = await state.get("published_results") || [];
 
     for (let elected_member of delta) {
         let election_info = {
@@ -65,6 +66,14 @@ export async function task(sendToNotificationChannels) {
             election_info: {}, // Optional if we have the election information as well
             // results_info: {} // Optional if the result has been recorded as well
         }
+
+        if (published_results.includes(elected_member.person.id)) {
+            console.log("Skipping already published candidate", elected_member.person.name, elected_member.party_name);
+            continue;
+        } else {
+            published_results.push(elected_member.person.id);
+        }
+
         console.log("Newly elected candidate", elected_member.person.name, elected_member.party_name);
 
         if (elected_member.deselected) {
@@ -104,14 +113,14 @@ export async function task(sendToNotificationChannels) {
             } else {
                 post = "Councillor";
             }
-            output += `## ${emoji} ${candidate.election_info.post}: ${candidate.party_name} Elected\n`;
+            output += `## ${emoji} ${candidate.election_info.post}: ${candidate.party_name} Elected, DemocracyClub Data\n`;
             output += `- Candidate: [${candidate.person_name}](<https://whocanivotefor.co.uk/person/${candidate.person_id}>) is the new ${post}.\n`;
             if (candidate.deselected.deselected) {
                 output += `- Deselected: [source](<${candidate.deselected.deselected_source}>).\n`;
             }
             output += `- Election ${candidate.election_info.post}: ${candidate.election_info.name}, ${candidate.election_info.date}\n`;
         } else {
-            output += `## ${emoji} ${candidate.party_name} Elected\n`;
+            output += `## ${emoji} ${candidate.party_name} Elected, DemocracyClub Data\n`;
             output += `- Candidate: [${candidate.person_name}](<https://whocanivotefor.co.uk/person/${candidate.person_id}>).\n`;
             if (candidate.deselected.deselected) {
                 output += `- Deselected: [source](<${candidate.deselected.deselected_source}>).\n`;
@@ -129,5 +138,6 @@ export async function task(sendToNotificationChannels) {
         }
     }
 
+    await state.set("published_results", published_results);
     console.log((new Date()).toLocaleTimeString() + " Finished candidates elected delta from " + update_date.toLocaleTimeString());
 }

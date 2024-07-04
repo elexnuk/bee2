@@ -80,12 +80,12 @@ export async function task(sendToNotificationChannels) {
         try {
             const ballot_info = await getBallotInformation(result.ballot.ballot_paper_id);
     
-            let output = `## ${ballot_info.post.label}: Results, ${ballot_info.election.name}`;
+            let output = `## ${ballot_info.post.label}: Results, ${ballot_info.election.name}, DemocracyClub Data`;
             output += `\n${ballot_info.election.election_date}`;
             if (result.num_turnout_reported !== null) {
                 output += ` - Turnout: ${formatNumber(result.num_turnout_reported)}`;
             } else {
-                output += " - Turnout *Not Reported*";
+                output += " - Turnout *Raw Figure Not Reported*";
             }
 
             if (result.turnout_percentage !== null) {
