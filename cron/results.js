@@ -69,7 +69,7 @@ export async function task(sendToNotificationChannels) {
     const delta = await getResultsDelta(last_updated, 200);
 
     if (delta.length === 0) {
-        console.log("No results found in delta");
+        console.log(update_date.toLocaleTimeString() + " No results found in delta");
         return;
     }
 
@@ -130,5 +130,5 @@ export async function task(sendToNotificationChannels) {
         }
     }
 
-    console.log("Finished processing results delta.")
+    console.log((new Date()).toLocaleTimeString() + " Finished results delta from " + update_date.toLocaleTimeString())
 }

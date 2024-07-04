@@ -46,7 +46,7 @@ export async function task(sendToNotificationChannels) {
     const delta = await getCandidatesElectedDelta(last_updated, 200);
 
     if (delta.length === 0) {
-        console.log("No elected candidates found in delta");
+        console.log(update_date.toLocaleTimeString() + " No candidates elected found in delta");
         return;
     }
 
@@ -129,5 +129,5 @@ export async function task(sendToNotificationChannels) {
         }
     }
 
-    console.log("Candidates Elected Job Completed");
+    console.log((new Date()).toLocaleTimeString() + " Finished candidates elected delta from " + update_date.toLocaleTimeString());
 }

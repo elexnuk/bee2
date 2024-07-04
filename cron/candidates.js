@@ -34,7 +34,7 @@ export async function task(sendToNotificationChannels) {
     let ballot_data = await state.get("ballot_data");
 
     if (delta.length === 0) {
-        console.log("No results found in delta");
+        console.log(update_date.toLocaleTimeString() + " No candidates found in delta");
         return;
     }
 
@@ -169,5 +169,6 @@ export async function task(sendToNotificationChannels) {
             }
         }    
     }
-    console.log("Finished candidates cron");
+
+    console.log((new Date()).toLocaleTimeString() + " Finished candidates delta from " + update_date.toLocaleTimeString());
 }
