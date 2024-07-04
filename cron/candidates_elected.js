@@ -2,7 +2,7 @@ import { getBallotInformation, getCandidatesElectedDelta } from "../util/democlu
 import { state } from "../util/state.js";
 
 export const name = "candidates_elected";
-export const schedule = "*/2 * * * *"; // every 5 minutes
+export const schedule = "*/1 * * * *"; // every 5 minutes
 
 const party_emoji = {
     "PP52": "<:Party_Conservative:859875049829695498>", // Con

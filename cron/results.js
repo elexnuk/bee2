@@ -2,7 +2,7 @@ import { getResultsDelta, getBallotInformation } from "../util/democlub.js";
 import { state } from "../util/state.js";
 
 export const name = "results";
-export const schedule = "*/5 * * * *"; // every 5 minutes
+export const schedule = "*/2 * * * *"; // every 5 minutes
 
 const party_emoji = {
     "PP52": "<:Party_Conservative:859875049829695498>", // Con
